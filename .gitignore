@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+
+# Ignorez le fichier .env contenant les variables d'environnement
+.env
+
+# Ignorez les fichiers de l'environnement virtuel (si celui-ci est dans votre projet)
+venv/
+ENV/

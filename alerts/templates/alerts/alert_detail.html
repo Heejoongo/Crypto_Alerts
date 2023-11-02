@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alert Detail</title>
+</head>
+<body>
+  <h2>Alert: {{ object.nom }}</h2>
+  <p>{{ object.description }}</p>
+  <p>Created at: {{ object.created_at }}</p>
+  <a href="{% url 'alert_update' object.pk %}">Edit</a> |
+  <a href="{% url 'alert_delete' object.pk %}">Delete</a>
+
+<!-- Maintenant, vous ajoutez les données de l'API -->
+    <h2>Exchange Rate Data</h2>
+<!--    <p>Time: {{ exchange_data.time }}</p>-->
+    <p>Time: <span id="exchange_time">{{ exchange_data.time }}</span></p>
+    <p>Base Asset: {{ exchange_data.asset_id_base }}</p>
+    <p>Quote Asset: {{ exchange_data.asset_id_quote }}</p>
+<!--    <p>Rate: {{ exchange_data.rate }}</p>-->
+    <p>Rate: <span id="exchange_rate">{{ exchange_data.rate }}</span></p>
+
+    <!-- Ajouter un lien pour revenir à la liste des alertes ou toute autre navigation nécessaire -->
+    <a href="{% url 'alert_list' %}">Back to list</a>
+
+  <script>
+  // Fonction pour effectuer une requête AJAX et mettre à jour les données de taux de change
+  function updateExchangeRate() {
+    fetch('{% url 'api_exchange_rate' %}') // Utilisez l'URL de votre endpoint API
+      .then(response => response.json())
+      .then(data => {
+        // Mettez à jour les éléments HTML avec les nouvelles données
+        document.getElementById('exchange_time').textContent = data.time;
+        document.getElementById('exchange_rate').textContent = data.rate.toFixed(2); // Formatage à 2 décimales
+        // Répétez pour les autres éléments si nécessaire
+      })
+      .catch(error => console.error('Error fetching exchange rate:', error));
+  }
+
+  // Exécutez cette fonction toutes les minutes
+  setInterval(updateExchangeRate, 60000); // 60000 millisecondes = 1 minute
+
+  // Exécutez également cette fonction immédiatement au chargement de la page
+  document.addEventListener('DOMContentLoaded', updateExchangeRate);
+  </script>
+</body>
+</html>

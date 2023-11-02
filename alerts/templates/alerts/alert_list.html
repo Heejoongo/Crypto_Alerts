@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Alerts</title>
+</head>
+<body>
+
+<h1>liste des alertes</h1>
+<ul>
+    {% for alert in object_list %}
+      <li>
+        <a href="{% url 'alert_detail' alert.pk %}">{{ alert.nom }}</a> - <small>{{ alert.description }}</small>
+      </li>
+    {% endfor %}
+     <a href="{% url 'alert_add' %}">Create new alert</a>
+  </ul>
+</body>
+</html>
