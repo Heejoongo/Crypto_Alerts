@@ -1,18 +1,55 @@
+<!-- Template pour lister les alertes -->
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>List of Alerts</title>
+    <meta charset="UTF-8">
+    <title>Liste des Alertes</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
+
+
+
 <body>
 
-<h1>liste des alertes</h1>
-<ul>
-    {% for alert in object_list %}
-      <li>
-        <a href="{% url 'alert_detail' alert.pk %}">{{ alert.nom }}</a> - <small>{{ alert.description }}</small>
-      </li>
-    {% endfor %}
-     <a href="{% url 'alert_add' %}">Create new alert</a>
-  </ul>
+    <div class="banner" style="background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url(https://source.unsplash.com/random/?money/);">
+        <div class="container">
+            <div class="py-4">
+              <h1>CoinAlert, a simple cryptocurrency notification app using CoinApi!</h1>
+            </div>
+            <div class="py-3">
+                <p>Manage your own cryptocurrency alerts</p>
+            </div>
+            <div class="py-3 rounded-3">
+                <a class="btn btn-primary" href="{% url 'alerts:alert_create' %}">Create a new alert</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container text-center">
+        <div class="my-5">
+            <h2>My Alerts</h2>
+        </div>
+        <div class="row gy-5 my-5">
+            {% for alert in alerts %}
+                <a href="{% url 'alerts:alert_detail' alert.pk %}" class="card col-3 m-3 p-0" style="width: 18rem; text-decoration: none;">
+                    <img class="card-img-top img-cover" src="https://source.unsplash.com/random/?money/{{ timestamp|stringformat:'i' }}{{ alert.id }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{alert.name}}</h5>
+                        <p class="card-text">{{alert.description}}</p>
+                    </div>
+                </a>
+            {% empty %}
+                <li>Aucune alerte disponible.</li>
+            {% endfor %}
+        </div>
+    </div>
+    <nav class="navbar fixed-bottom navbar-light bg-light d-flex justify-content-center">
+      <div class="navbar-brand fs-6" href="#">Cette plateforme a été concu selon un cahier des charges bien précis et suivi à la lettre par le developpeur.</div>
+    </nav>
+
 </body>
 </html>

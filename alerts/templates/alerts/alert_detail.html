@@ -1,46 +1,125 @@
+<!-- Template pour les détails d'une alerte -->
+{% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Alert Detail</title>
+    <meta charset="UTF-8">
+    <title>Détail de l'Alerte</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script>
+        const base = "{{ alert.base }}";
+        const quote = "{{ alert.quote }}";
+        const alertId = "{{ alert.pk }}";
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function saveExchangeRate(rate, time) {
+            fetch(`/update-rate/${alertId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ rate: rate, updated_at: time })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Server returned non-OK status: ' + response.status);
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Rate saved successfully');
+                } else {
+                    console.error('Error in response:', data.error);
+                }
+            })
+            .catch(error => console.error('Error saving rate:', error));
+        }
+
+        function updateExchangeRate() {
+            fetch(`/fetch-rate/?base=${base}&quote=${quote}`)
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.rate !== 0) {
+                        document.getElementById('exchange_rate').textContent = data.rate.toFixed(4); // Format the rate to 4 decimal places
+                        document.getElementById('exchange_time').textContent = new Date().toLocaleTimeString();
+                        saveExchangeRate(data.rate.toFixed(4), new Date().toLocaleTimeString());
+                    }
+                    else {
+                        alert("En raison du nombre de requetes limitées, attendre une minute avant de recharger la page :)")
+                    }
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateExchangeRate);
+
+        setInterval(updateExchangeRate, 180000);
+    </script>
+
 </head>
 <body>
-  <h2>Alert: {{ object.nom }}</h2>
-  <p>{{ object.description }}</p>
-  <p>Created at: {{ object.created_at }}</p>
-  <a href="{% url 'alert_update' object.pk %}">Edit</a> |
-  <a href="{% url 'alert_delete' object.pk %}">Delete</a>
+    <div class="banner" style="background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url(https://source.unsplash.com/random/?money/);">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-12">
+                <h1 class="display-4">{{ alert.name }}</h1>
+                </div>
+            </div>
+            <a class="btn btn-primary my-5" href="{% url 'alerts:alert_list' %}">back to the list</a>
+        </div>
+    </div>
 
-<!-- Maintenant, vous ajoutez les données de l'API -->
-    <h2>Exchange Rate Data</h2>
-<!--    <p>Time: {{ exchange_data.time }}</p>-->
-    <p>Time: <span id="exchange_time">{{ exchange_data.time }}</span></p>
-    <p>Base Asset: {{ exchange_data.asset_id_base }}</p>
-    <p>Quote Asset: {{ exchange_data.asset_id_quote }}</p>
-<!--    <p>Rate: {{ exchange_data.rate }}</p>-->
-    <p>Rate: <span id="exchange_rate">{{ exchange_data.rate }}</span></p>
-
-    <!-- Ajouter un lien pour revenir à la liste des alertes ou toute autre navigation nécessaire -->
-    <a href="{% url 'alert_list' %}">Back to list</a>
-
-  <script>
-  // Fonction pour effectuer une requête AJAX et mettre à jour les données de taux de change
-  function updateExchangeRate() {
-    fetch('{% url 'api_exchange_rate' %}') // Utilisez l'URL de votre endpoint API
-      .then(response => response.json())
-      .then(data => {
-        // Mettez à jour les éléments HTML avec les nouvelles données
-        document.getElementById('exchange_time').textContent = data.time;
-        document.getElementById('exchange_rate').textContent = data.rate.toFixed(2); // Formatage à 2 décimales
-        // Répétez pour les autres éléments si nécessaire
-      })
-      .catch(error => console.error('Error fetching exchange rate:', error));
-  }
-
-  // Exécutez cette fonction toutes les minutes
-  setInterval(updateExchangeRate, 60000); // 60000 millisecondes = 1 minute
-
-  // Exécutez également cette fonction immédiatement au chargement de la page
-  document.addEventListener('DOMContentLoaded', updateExchangeRate);
-  </script>
+    <div class="container justify-content-center">
+        <p>Description : {{ alert.description }}</p>
+        <p>Base : {{ alert.base }}</p>
+        <p>Quote : {{ alert.quote }}</p>
+        <p>limite: {{ alert.threshold_value }}</p>
+        <p>created at: {{ alert.created_at }}</p>
+        <p>updated at :
+            <span id="exchange_time">
+                {% if alert.updated_at %}
+                    {{ alert.updated_at }}
+                {% endif %}
+            </span>
+        </p>
+        <p>rate :
+            <span id="exchange_rate">
+            {% if alert.rate %}
+                {{ alert.rate }}
+                {% if alert.rate < alert.threshold_value %}
+                    <div id="alert_message" style="color: red;">
+                        Attention: Le taux de change est inférieur au seuil!
+                    </div>
+                {% endif %}
+            {% endif %}
+            </span>
+        </p>
+        <a href="{% url 'alerts:alert_update' alert.pk %}">Éditer</a>
+        <form action="{% url 'alerts:alert_delete' alert.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete this alert?');">
+            {% csrf_token %}
+            <button type="submit">supprimer</button>
+        </form>
+    </div>
 </body>
 </html>
+

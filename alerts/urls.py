@@ -1,20 +1,20 @@
-
 from django.urls import path
-from .views import (
-    AlertListView,
-    AlertDetailView,
-    AlertCreateView,
-    AlertUpdateView,
-    AlertDeleteView,
-    api_exchange_rate
-)
+from . import views
+
+app_name = 'alerts'
 
 urlpatterns = [
-    path('', AlertListView.as_view(), name='alert_list'),
-    path('<int:pk>/', AlertDetailView.as_view(), name='alert_detail'),
-    path('add/', AlertCreateView.as_view(), name='alert_add'),
-    path('<int:pk>/update/', AlertUpdateView.as_view(), name='alert_update'),
-    path('<int:pk>/delete/', AlertDeleteView.as_view(), name='alert_delete'),
-    path('api/exchange_rate/', api_exchange_rate, name='api_exchange_rate'),
+    path('', views.alert_list, name='alert_list'),
 
+    path('create/', views.alert_create, name='alert_create'),
+
+    path('<int:pk>/', views.alert_detail, name='alert_detail'),
+
+    path('<int:pk>/update/', views.alert_update, name='alert_update'),
+
+    path('<int:pk>/delete/', views.alert_delete, name='alert_delete'),
+
+    path('fetch-rate/', views.fetch_rate, name='fetch-rate'),
+
+    path('update-rate/<int:pk>/', views.update_rate, name='update_rate'),
 ]

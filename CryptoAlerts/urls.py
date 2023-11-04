@@ -18,8 +18,6 @@ from django.contrib import admin
 from django.urls import path, include  # Assurez-vous d'importer include
 
 urlpatterns = [
-    # ... vos autres patterns d'url
-
-    # Include les urls de l'application 'alerts'
-    path('', include('alerts.urls')),
+    path('', include(('alerts.urls', 'alerts'), namespace='alerts')),
+    path('accounts/', include('allauth.urls')),
 ]
