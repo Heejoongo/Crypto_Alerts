@@ -72,7 +72,7 @@ def alert_delete(request, pk):
 @login_required
 def fetch_data(base, quote):
     url = f"https://rest.coinapi.io/v1/exchangerate/{base}"
-    api_key = os.getenv('COINAPI_KEY2')
+    api_key = os.getenv('COINAPI_KEY')
     headers = {"X-CoinAPI-Key": api_key}
     response = requests.get(url, headers=headers)
     data = response.json()
