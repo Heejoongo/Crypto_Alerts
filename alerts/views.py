@@ -69,10 +69,9 @@ def alert_delete(request, pk):
         messages.success(request, 'Alert deleted successfully!')
         return redirect('alerts:alert_list')
 
-@login_required
 def fetch_data(base, quote):
     url = f"https://rest.coinapi.io/v1/exchangerate/{base}"
-    api_key = os.getenv('COINAPI_KEY')
+    api_key = os.getenv('COINAPI_KEY3')
     headers = {"X-CoinAPI-Key": api_key}
     response = requests.get(url, headers=headers)
     data = response.json()
@@ -81,7 +80,6 @@ def fetch_data(base, quote):
             if rate_info.get('asset_id_quote') == quote:
                 return rate_info.get('rate')
 
-@login_required
 def fetch_rate(request):
     base = request.GET.get('base')
     quote = request.GET.get('quote')
@@ -94,7 +92,6 @@ def fetch_rate(request):
 
 @csrf_exempt  # Only use this if you know what you are doing regarding CSRF protection!
 @require_POST
-@login_required
 def update_rate(request, pk):
     if request.method == 'POST':
         data = json.loads(request.body)
