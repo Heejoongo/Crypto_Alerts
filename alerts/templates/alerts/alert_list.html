@@ -34,7 +34,7 @@
             <h2>My Alerts</h2>
         </div>
         <div class="row gy-5 my-5">
-            {% for alert in alerts %}
+            {% for alert in ordered_alerts %}
                 <a href="{% url 'alerts:alert_detail' alert.pk %}" class="card col-3 m-3 p-0" style="width: 18rem; text-decoration: none;">
                     <img class="card-img-top img-cover" src="https://source.unsplash.com/random/?money/{{ timestamp|stringformat:'i' }}{{ alert.id }}" class="card-img-top" alt="...">
                     <div class="card-body">

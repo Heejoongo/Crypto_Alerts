@@ -29,7 +29,8 @@ def alert_detail(request, pk):
 @login_required
 def alert_list(request):
     alerts = Alert.objects.filter(user=request.user)
-    return render(request, 'alerts/alert_list.html', {'alerts': alerts})
+    ordered_alerts = alerts.order_by('-id')
+    return render(request, 'alerts/alert_list.html', {'alerts': alerts, 'ordered_alerts':  ordered_alerts})
 
 
 @login_required
